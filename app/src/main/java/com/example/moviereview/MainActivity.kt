@@ -11,8 +11,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.compose.AppTheme
 import com.example.compose.primaryLight
+import com.example.moviereview.view.DetailScreen
+import com.example.moviereview.view.WatchListScreen
+import com.example.moviereview.view.WritingReviewScreen
 import com.example.ui.theme.bodyFontFamily
 import com.example.ui.theme.displayFontFamily
 
@@ -24,30 +30,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    val controller = rememberNavController()
+                    NavHost(navController = controller, startDestination = "watchList", Modifier.padding(innerPadding)) {
+                        composable ("watchList") { WatchListScreen(controller) }
+                        composable ("detail") { DetailScreen(controller) }
+                        composable ("writingReview") { WritingReviewScreen(controller) }
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier,
-        fontFamily = bodyFontFamily,
-        color = primaryLight
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AppTheme {
-        Greeting("Movie Review")
-    }
-}
