@@ -1,14 +1,14 @@
 package com.example.moviereview.model
 
+import androidx.annotation.DrawableRes
+
 data class MovieDetails(
+    val id: Int,
     val title: String,
-    val rating: Rating,
-    val tags: List<String>,
-    val year: Int,
+    val genres: List<String>,
+    val year: String,
     val language: String,
-    val ratingMPAA: String, // Rating (MPAA rating like R, PG-13, etc.)
+    var rating: String,
     val description: String,
-    val cast: List<CastMember>,
-    val reviews: List<Review>,
-    val similarMovies: List<SimilarMovie>
+    @DrawableRes val imageRes: Int
 )

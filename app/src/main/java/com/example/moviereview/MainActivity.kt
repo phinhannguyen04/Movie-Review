@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.compose.AppTheme
 import com.example.compose.primaryLight
 import com.example.moviereview.view.DetailScreen
+import com.example.moviereview.view.ReviewScreen
 import com.example.moviereview.view.WatchListScreen
 import com.example.moviereview.view.WritingReviewScreen
 import com.example.ui.theme.bodyFontFamily
@@ -30,12 +31,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val controller = rememberNavController()
-                    NavHost(navController = controller, startDestination = "watchList", Modifier.padding(innerPadding)) {
-                        composable ("watchList") { WatchListScreen(controller) }
-                        composable ("detail") { DetailScreen(controller) }
-                        composable ("writingReview") { WritingReviewScreen(controller) }
-                    }
+//                    val controller = rememberNavController()
+//                    NavHost(navController = controller, startDestination = "watchList", Modifier.padding(innerPadding)) {
+//                        composable ("watchList") { WatchListScreen(controller) }
+//                        composable ("detail") { DetailScreen(controller) }
+//                        composable ("writingReview") { WritingReviewScreen(controller) }
+//                    }
+                    ReviewScreen()
                 }
             }
         }
