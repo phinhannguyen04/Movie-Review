@@ -10,7 +10,6 @@ class MainViewModel : ViewModel() {
     private val _movieState = MutableStateFlow(movieData)
     val movieState = _movieState.asStateFlow()
 
-
     fun getMovie(id: Int): MovieDetails? {
         val movie = _movieState.value.find { it.id == id }
         return movie
