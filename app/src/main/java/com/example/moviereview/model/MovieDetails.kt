@@ -8,7 +8,7 @@ data class MovieDetails(
     val genres: List<String>,
     val year: String,
     val language: String,
-    val rating: String,
+    var rating: String,
     val description: String,
     @DrawableRes val imageRes: Int
 )
