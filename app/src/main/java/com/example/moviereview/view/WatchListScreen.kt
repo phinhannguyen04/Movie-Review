@@ -77,7 +77,13 @@ fun WatchListScreen(
                     )
                 }
                 items (movieData) {
-                    MovieItemDetail(it.title, it.imageRes, it.rating, it.year)
+                    MovieItemDetail(
+                        it.title,
+                        it.imageRes,
+                        it.rating,
+                        it.year,
+                        onClick = { controller.navigate("${Destination.DETAIL.name}/${it.id}") }
+                    )
                 }
             }
         }
@@ -89,12 +95,16 @@ fun MovieItemDetail(
     title: String,
     imageRes: Int,
     rating: String,
-    year: String
+    year: String,
+    onClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 8.dp),
+            .padding(vertical = 8.dp, horizontal = 8.dp)
+            .clickable(
+                onClick = onClick
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -161,6 +171,7 @@ fun MovieItemDetail(
 enum class Destination (
     @DrawableRes val icon: Int,
     val contentDescription: String,
+    val isBottomBarItem: Boolean = true
 ) {
     HOME(
         icon = R.drawable.ic_movie,
@@ -174,10 +185,11 @@ enum class Destination (
         icon = R.drawable.ic_profilee,
         contentDescription = "Profile"
     ),
-//    DETAIL(
-//        icon = 0,
-//        contentDescription = "Detail"
-//    )
+    DETAIL(
+        icon = 0,
+        contentDescription = "Detail",
+        isBottomBarItem = false
+    )
 }
 
 @Composable
@@ -187,7 +199,7 @@ fun BottomBar(navController: NavHostController) {
     val currentDestination = navBackStackEntry?.destination
 
     NavigationBar (windowInsets = NavigationBarDefaults.windowInsets) {
-        Destination.entries.forEachIndexed { index, destination ->
+        Destination.entries.filter { it.isBottomBarItem }.forEachIndexed { index, destination ->
             val selected = currentDestination?.route == destination.name
             NavigationBarItem (
                 selected = selected,

@@ -53,7 +53,10 @@ fun SearchScreen(controller: NavHostController) {
                     .padding(16.dp)
             ) {
                 items (movieData.filter { it.title.contains(movieName, ignoreCase = true)} ) {
-                    MovieItem(it.title, it.imageRes, it.rating, it.year)
+                    MovieItemDetail(
+                        it.title, it.imageRes, it.rating, it.year,
+                        onClick = { controller.navigate("${Destination.DETAIL.name}/${it.id}") }
+                    )
                 }
             }
         }
