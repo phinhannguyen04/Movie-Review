@@ -13,10 +13,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -32,122 +33,83 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.moviereview.data.movieData
 import com.example.moviereview.viewModel.MainViewModel
 
-
 @Composable
-fun WritingReviewScreen(controller: NavHostController) {
-    Scaffold (
-        Modifier,
-    ) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(it),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            /*
-            * Code test chuyển hướng trang
-            * */
-            Row (
-                Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .clickable(
-                            onClick = { controller.navigate("watchList") }
-                        )
-                )
-                Icon(
-                    imageVector = Icons.Filled.ArrowForward,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .clickable(
-                            onClick = { controller.navigate("detail") }
-                        )
-                )
-            }
-            Text(text = "Writing Reviews Screen")
-        }
-    }
-}
-
-@Preview
-@Composable
-fun ReviewScreen(viewModel: MainViewModel = viewModel()) {
-
-//    val movieRating by viewModel.movieRating.collectAsState()
-    val movieReview by viewModel.movieReview.collectAsState()
+fun ReviewScreen(
+    id: Int,
+    controller: NavHostController,
+    viewModel: MainViewModel
+) {
     val movieState by viewModel.movieState.collectAsState()
+    val movieFound = movieState.find { it.id == id }
 
-    val movie = movieData.get(0)
-    /*
-    * Tim phim voi id tuong ung
-    * Lay rating hien tai cua phim vua tim duoc
-    * */
-    val phim = movieState.find { it.id == movie.id }
-    val currentRating = phim?.rating?.toIntOrNull() ?: 0
+    val currentReviewRating by viewModel.movieRating.collectAsState()
+    val currentReviewComment by viewModel.movieReview.collectAsState()
 
     Scaffold (
         Modifier
+            .safeDrawingPadding()
             .fillMaxSize(),
-        topBar = {
-
+        topBar = { BackButton(
+            modifier = Modifier.padding(start = 15.dp, top = 30.dp),
+            color = Color.Black,
+            onClick = {controller.popBackStack()}
+        ) },
+        floatingActionButton = {
+            DoneButton(
+                onClick = {
+                    viewModel.updateMovie(movieFound!!.id)
+                    controller.popBackStack()
+                }
+            )
         }
     ) {
-        LazyColumn (
-            Modifier
-                .padding(it)
-                .padding(16.dp)
-        ){
-            item {
-                MovieItem(title = movie.title, imageRes = movie.imageRes, rating = currentRating.toString(), year = movie.year)
-            }
-
-            item {
-                Text(
-                    "Đánh giá phim",
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Light
-                )
-            }
-
-            if (phim != null) {
+        if (movieFound != null) {
+            LazyColumn (
+                Modifier
+                    .padding(it)
+                    .padding(16.dp)
+            ){
                 item {
-                    StarRating(
-                        currentRating = currentRating,
-                        onRatingChanged = { it -> viewModel.updateMovieRating(movie.id, it) }
+                    MovieItem(title = movieFound.title, imageRes = movieFound.imageRes, rating = currentReviewRating.toString(), year = movieFound.year)
+                }
+
+                item {
+                    Text(
+                        "Đánh giá phim",
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Light
                     )
                 }
-            }
 
-            item {
-                OutlinedTextField(
-                    value = movieReview,
-                    onValueChange = { it ->
-                        viewModel.updateMovieComment(it)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    placeholder = {
-                        Text("Nhập ghi chú", fontSize = 28.sp)
-                    },
-                    minLines = 9,
-                    textStyle = TextStyle(fontSize = 28.sp)
-                )
+                item {
+                    StarRating(
+                        currentRating = currentReviewRating,
+                        onRatingChanged = { it -> viewModel.updateMovieRating(it) }
+                    )
+                }
+
+
+                item {
+                    OutlinedTextField(
+                        value = currentReviewComment,
+                        onValueChange = { it ->
+                            viewModel.updateMovieComment( it)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        placeholder = {
+                            Text("Nhập ghi chú", fontSize = 28.sp)
+                        },
+                        minLines = 9,
+                        textStyle = TextStyle(fontSize = 28.sp)
+                    )
+                }
             }
         }
     }
@@ -257,5 +219,17 @@ fun MovieItem(
                 }
             }
         }
+    }
+}
+
+
+@Composable
+fun DoneButton(onClick: () -> Unit) {
+    Button(onClick = onClick) {
+        Icon(
+            Icons.Filled.Done,
+            contentDescription = null,
+            modifier = Modifier.size(ButtonDefaults.IconSize)
+        )
     }
 }

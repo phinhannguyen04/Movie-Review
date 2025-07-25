@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -24,15 +25,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.moviereview.data.movieData
+import com.example.moviereview.viewModel.MainViewModel
 
 
 @Composable
-fun SearchScreen(controller: NavHostController) {
+fun SearchScreen(controller: NavHostController, viewModel: MainViewModel) {
     var movieName by rememberSaveable { mutableStateOf("")}
+    val movieState by viewModel.movieState.collectAsState()
 
     Scaffold(
         Modifier
@@ -52,7 +53,7 @@ fun SearchScreen(controller: NavHostController) {
                     .padding(it)
                     .padding(16.dp)
             ) {
-                items (movieData.filter { it.title.contains(movieName, ignoreCase = true)} ) {
+                items (movieState.filter { it.title.contains(movieName, ignoreCase = true)} ) {
                     MovieItemDetail(
                         it.title, it.imageRes, it.rating, it.year,
                         onClick = { controller.navigate("${Destination.DETAIL.name}/${it.id}") }

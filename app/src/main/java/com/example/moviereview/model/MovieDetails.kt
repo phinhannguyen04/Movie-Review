@@ -10,5 +10,6 @@ data class MovieDetails(
     val language: String,
     var rating: String,
     val description: String,
-    @DrawableRes val imageRes: Int
+    @DrawableRes val imageRes: Int,
+    var reviews: String = ""
 )

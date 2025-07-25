@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -46,10 +45,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.compose.AppTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -59,9 +56,13 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.moviereview.data.movieData
 import com.example.moviereview.model.MovieDetails
+import com.example.moviereview.model.User
+import com.example.moviereview.viewModel.MainViewModel
 
 
 @Composable
@@ -89,7 +90,6 @@ fun MovieHeader(image: Int, controller: NavHostController){
         ){
             BackButton(
                 modifier = Modifier
-//                    .align(Alignment.Center)
                     .padding(start = 15.dp, top = 30.dp),
                 onClick = {
                     controller.popBackStack()
@@ -137,6 +137,7 @@ fun PlayButton(
 @Composable
 fun BackButton(
     modifier: Modifier = Modifier,
+    color: Color = Color.White,
     onClick: () ->Unit = {}
 ){
     IconButton(
@@ -148,7 +149,7 @@ fun BackButton(
         Icon(
             imageVector = Icons.Filled.ArrowBack,
             contentDescription = "Back",
-            tint = Color.White
+            tint = color
         )
     }
 }
@@ -181,10 +182,10 @@ fun StarRating (rating: Int){
 }
 
 @Composable
-fun MovieInfoSection(data: MovieDetails){
+fun MovieInfoSection(data: MovieDetails, currentUser: User){
     var isFavorite by remember { mutableStateOf(false) }
     val image1 = painterResource(R.drawable.avatar1)
-    val image2 = painterResource(R.drawable.avatar2)
+    val image2 = painterResource(currentUser.imageRes)
 
     Column(
         modifier = Modifier
@@ -241,7 +242,8 @@ fun MovieInfoSection(data: MovieDetails){
             Icon(
                 imageVector = Icons.Filled.Star,
                 contentDescription = "Rating",
-                tint = Color.Yellow)
+                tint = Color.Yellow
+            )
             Text(
                 text= "${data.rating}/5.0",
                 color = MaterialTheme.colorScheme.onSurface,
@@ -415,17 +417,17 @@ fun MovieInfoSection(data: MovieDetails){
                     contentScale = ContentScale.Crop,
                 )
                 Text(
-                    text = "Thanh Da" ,
+                    text = currentUser.name,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                StarRating(rating = 4)
+                StarRating(rating = data.rating.toInt())
             }
             Row(modifier = Modifier.padding(start = 50.dp)) {
                 Text(
-                    text = "The movie is really worth watching, but the picture quality is not good.",
+                    text = data.reviews,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyMedium,
                     fontSize = 20.sp,
@@ -438,18 +440,23 @@ fun MovieInfoSection(data: MovieDetails){
 
 
 @Composable
-fun MovieDetailScreen(id: Int, controller: NavHostController) {
+fun MovieDetailScreen(
+    id: Int,
+    controller: NavHostController,
+    viewModel: MainViewModel,
+) {
 
-    val movieFound = movieData.find { it.id == id }
+    val movieState by viewModel.movieState.collectAsState()
+    val currentMovie = movieState.find { it.id == id }
+    val currentUser by viewModel.currentUser.collectAsState()
 
-    if (movieFound == null) {
-        return
+    LaunchedEffect(id) {
+        viewModel.loadMovieForReview(id)
     }
 
     Scaffold (
         modifier = Modifier,
-        bottomBar = { BottomBar(navController = controller) },
-        floatingActionButton = { AddReviewButton(onClick = {}) }
+        floatingActionButton = { AddReviewButton(onClick = {controller.navigate("${Destination.REVIEW.name}/${currentMovie!!.id}")}) }
     ) {
         Column(
             Modifier.padding(it)
@@ -457,12 +464,11 @@ fun MovieDetailScreen(id: Int, controller: NavHostController) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            MovieHeader(movieFound.imageRes, controller)
-            MovieInfoSection(movieFound)
+            MovieHeader(currentMovie!!.imageRes, controller)
+            MovieInfoSection(currentMovie, currentUser)
         }
     }
 }
-
 
 @Composable
 fun AddReviewButton(onClick:() -> Unit) {
