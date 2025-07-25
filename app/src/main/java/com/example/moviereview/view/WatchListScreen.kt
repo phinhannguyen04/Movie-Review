@@ -15,9 +15,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -28,6 +25,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -44,12 +42,16 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.moviereview.R
-import com.example.moviereview.data.movieData
+import com.example.moviereview.data.MovieDataSource.movieData
+import com.example.moviereview.viewModel.MainViewModel
 
 @Composable
 fun WatchListScreen(
-    controller: NavHostController
+    controller: NavHostController,
+    viewModel: MainViewModel
 ) {
+    val movieData by viewModel.movieState.collectAsState()
+
     Scaffold (
         Modifier
             .padding(),
@@ -132,7 +134,7 @@ fun MovieItemDetail(
                 modifier = Modifier
                     .padding(bottom = 16.dp),
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 20.sp
+                fontSize = 24.sp
             )
 
             Row (
@@ -147,9 +149,9 @@ fun MovieItemDetail(
                         Icons.Default.Star,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(20.dp)
                     )
-                    Text(rating, fontSize = 14.sp, modifier = Modifier.padding(start = 4.dp))
+                    Text(rating, fontSize = 20.sp, modifier = Modifier.padding(start = 4.dp))
                 }
                 Row (
                     Modifier
@@ -159,9 +161,9 @@ fun MovieItemDetail(
                         Icons.Default.DateRange,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(20.dp)
                     )
-                    Text(year, fontSize = 14.sp, modifier = Modifier.padding(start = 4.dp))
+                    Text(year, fontSize = 20.sp, modifier = Modifier.padding(start = 4.dp))
                 }
             }
         }
@@ -188,6 +190,11 @@ enum class Destination (
     DETAIL(
         icon = 0,
         contentDescription = "Detail",
+        isBottomBarItem = false
+    ),
+    REVIEW(
+        icon = 0,
+        contentDescription = "Review",
         isBottomBarItem = false
     )
 }
